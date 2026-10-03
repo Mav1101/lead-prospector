@@ -23,6 +23,7 @@ export const useStore = create(
       loading: false,
       error: '',
       selectedId: null,
+      picked: [], // ids ticked for bulk add
       tab: 'results',
       toast: '',
       flyTo: null, // { lat, lng, n } — consumed by the map
@@ -38,7 +39,7 @@ export const useStore = create(
       // Search around a text location, or around explicit coords (geobounding re-search).
       runSearch: async ({ center, label, force } = {}) => {
         const s = get()
-        set({ loading: true, error: '', selectedId: null })
+        set({ loading: true, error: '', selectedId: null, picked: [] })
         try {
           let c = center
           let text = label ?? s.locationText
@@ -60,6 +61,12 @@ export const useStore = create(
         }
       },
 
+      togglePick: (id) =>
+        set((s) => ({ picked: s.picked.includes(id) ? s.picked.filter((x) => x !== id) : [...s.picked, id] })),
+      addLeads: (items) => {
+        items.forEach((b) => get().addLead(b))
+        get().notify(`Added ${items.length} to leads`)
+      },
       addLead: (b) =>
         set((s) => ({ leads: { ...s.leads, [b.id]: { ...b, savedAt: s.leads[b.id]?.savedAt || Date.now(), tags: s.leads[b.id]?.tags || [] } } })),
       removeLeads: (ids) =>

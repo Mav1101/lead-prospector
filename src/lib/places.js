@@ -9,7 +9,7 @@ export const CATEGORIES = [
   'Repair Shop', 'Retail', 'Auto Repair', 'Laundry', 'Bakery', 'Clinic', 'Real Estate',
 ]
 
-const CACHE_KEY = 'lp:searchCache'
+const CACHE_KEY = 'lp:searchCache2'
 const TTL = 24 * 3600 * 1000
 
 function readCache() {
@@ -48,6 +48,15 @@ function toBusiness(p, category, center) {
     rating: p.rating ?? null,
     reviewCount: p.userRatingCount ?? null,
     lastReviewAt,
+    description: p.editorialSummary || '',
+    googleType: p.primaryTypeDisplayName || '',
+    city: (p.addressComponents || []).find((c) => c.types.includes('locality'))?.longText || '',
+    internationalPhone: p.internationalPhoneNumber || '',
+    hours: p.regularOpeningHours?.weekdayDescriptions || [],
+    priceLevel: p.priceLevel || '',
+    plusCode: p.plusCode?.globalCode || '',
+    photoCount: p.photos?.length || 0,
+    topReviews: reviews.slice(0, 3).map((r) => `${r.rating}★ ${(r.text || '').replace(/\s+/g, ' ').slice(0, 200)}`),
     gbpActive: p.businessStatus === 'OPERATIONAL',
     gbpUrl: p.googleMapsURI || `https://www.google.com/maps/place/?q=place_id:${p.id}`,
     lat, lng,
@@ -67,7 +76,9 @@ export async function searchBusinesses({ center, category, radiusKm, force = fal
   const fields = [
     'id', 'displayName', 'formattedAddress', 'location', 'nationalPhoneNumber',
     'internationalPhoneNumber', 'websiteURI', 'rating', 'userRatingCount',
-    'businessStatus', 'googleMapsURI', 'reviews',
+    'businessStatus', 'googleMapsURI', 'reviews', 'editorialSummary',
+    'primaryTypeDisplayName', 'addressComponents', 'regularOpeningHours', 'priceLevel',
+    'plusCode', 'photos',
   ]
   // "All businesses" = nearby search with no type filter; otherwise text search on the category.
   const { places } = category === ALL

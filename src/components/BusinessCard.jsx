@@ -10,7 +10,7 @@ const btn =
   'px-2.5 py-1 rounded-md text-xs font-medium border border-gray-300 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700 transition'
 
 export default function BusinessCard({ b }) {
-  const { selectedId, leads, addLead, notify, setTraffic } = useStore()
+  const { selectedId, leads, addLead, notify, setTraffic, picked, togglePick } = useStore()
   const [saved, setSaved] = useState(false)
   const ref = useRef(null)
   const selected = selectedId === b.id
@@ -18,7 +18,7 @@ export default function BusinessCard({ b }) {
   const inLeads = !!leads[b.id]
 
   useEffect(() => {
-    if (selected) ref.current?.scrollIntoView({ block: 'nearest', behavior: 'smooth' })
+    if (selected) ref.current?.scrollIntoView({ block: 'center', behavior: 'smooth' })
   }, [selected])
 
   const save = () => {
@@ -41,11 +41,13 @@ export default function BusinessCard({ b }) {
       ref={ref}
       onClick={() => useStore.setState({ selectedId: b.id })}
       className={`p-3 border-b border-gray-200 dark:border-gray-700 cursor-pointer ${
-        selected ? 'bg-blue-50 dark:bg-blue-950/40 ring-2 ring-inset ring-blue-500' : 'hover:bg-gray-50 dark:hover:bg-gray-800/60'
+        selected ? 'bg-blue-100 dark:bg-blue-900/50 ring-2 ring-inset ring-blue-500 border-l-8 border-l-blue-600' : 'hover:bg-gray-50 dark:hover:bg-gray-800/60'
       }`}
     >
       <div className="flex items-start justify-between gap-2">
-        <h3 className="font-semibold leading-tight">
+        <input type="checkbox" className="mt-1 shrink-0" checked={picked.includes(b.id)}
+          onClick={(e) => e.stopPropagation()} onChange={() => togglePick(b.id)} aria-label={`Select ${b.name}`} />
+        <h3 className="font-semibold leading-tight flex-1">
           <Tip text={`${tier.label} lead (${b.score}/100): ${tier.hint}`}>{tier.emoji}</Tip> {b.name}
         </h3>
         <span className="text-xs tabular-nums text-gray-500 dark:text-gray-400 shrink-0">{b.score}/100 · {b.distanceKm.toFixed(1)} km</span>

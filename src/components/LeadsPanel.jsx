@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useStore } from '../store'
 import { TIERS } from '../lib/scoring'
 import { downloadCsv } from '../lib/csv'
+import { saveToSheets, sheetsApiEnabled } from '../lib/sheets'
 
 const btn = 'px-2.5 py-1 rounded-md text-xs font-medium border border-gray-300 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700'
 const TAGS = ['Contacted', 'Not Interested', 'Follow up', 'Won']
@@ -27,6 +28,15 @@ export default function LeadsPanel() {
         </label>
         <button className={btn} onClick={() => downloadCsv(sel.size ? chosen() : list)}>
           Download CSV{sel.size ? ' (selected)' : ' (all)'}
+        </button>
+        <button className={btn} title={sheetsApiEnabled ? 'Creates a new Google Sheet in your Drive' : 'Copies the data and opens a blank Google Sheet — press Ctrl+V in cell A1'}
+          onClick={async () => {
+            try {
+              const r = await saveToSheets(sel.size ? chosen() : list)
+              notify(r.mode === 'api' ? 'Saved to Google Sheets' : 'Copied — paste into A1 of the new sheet (Ctrl+V)')
+            } catch (e) { notify(e.message || 'Google Sheets export failed') }
+          }}>
+          Save to Google Sheets
         </button>
         <select className={btn + ' bg-transparent'} value="" disabled={!sel.size}
           onChange={(e) => { if (e.target.value) { tagLeads([...sel], e.target.value); notify(`Tagged ${sel.size}`) } }}>

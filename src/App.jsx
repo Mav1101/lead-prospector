@@ -93,6 +93,25 @@ function Prospector({ apiKey }) {
           {s.tab === 'results' ? (
             <>
               <SearchPanel />
+              {!s.loading && visible.length > 0 && (
+                <div className="px-3 py-2 flex flex-wrap items-center gap-2 border-b border-gray-200 dark:border-gray-700 text-sm">
+                  <label className="flex items-center gap-1.5">
+                    <input type="checkbox"
+                      checked={visible.every((b) => s.picked.includes(b.id))}
+                      onChange={(e) => s.set({ picked: e.target.checked ? visible.map((b) => b.id) : [] })} />
+                    {s.picked.length ? `${s.picked.length} selected` : 'Select all'}
+                  </label>
+                  <button className="px-2.5 py-1 rounded-md text-xs font-medium bg-blue-600 text-white disabled:opacity-50"
+                    disabled={!s.picked.length}
+                    onClick={() => { s.addLeads(visible.filter((b) => s.picked.includes(b.id))); s.set({ picked: [] }) }}>
+                    Add selected to Leads
+                  </button>
+                  <button className="px-2.5 py-1 rounded-md text-xs font-medium border border-gray-300 dark:border-gray-600"
+                    onClick={() => { s.addLeads(visible); s.set({ picked: [] }) }}>
+                    Add all {visible.length}
+                  </button>
+                </div>
+              )}
               {s.loading ? <Spinner label="Searching…" /> : visible.length ? (
                 visible.map((b) => <BusinessCard key={b.id} b={b} />)
               ) : (
